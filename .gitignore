@@ -53,3 +53,8 @@ env/
 /data/
 *.db
 *.sqlite
+
+# AWS Lambda packaging artifacts
+/lambda_package/
+/lambda_function.zip
+/requirements-lambda.txt
