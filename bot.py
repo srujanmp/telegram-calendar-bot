@@ -356,12 +356,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
-    # Disable SSL verification — needed on networks with SSL inspection (e.g. college/library)
-    # Remove the `request=request` argument when deploying to Railway
-    ssl_ctx = ssl.create_default_context()
-    ssl_ctx.check_hostname = False
-    ssl_ctx.verify_mode = ssl.CERT_NONE
-    request = HTTPXRequest(http_version="1.1", httpx_kwargs={"verify": False})
+    # SSL verification: disable for development/college networks, enable for production
+    environment = os.environ.get("ENVIRONMENT", "development")
+
+    if environment == "production":
+        # Production (Railway): normal SSL verification
+        request = HTTPXRequest(http_version="1.1")
+    else:
+        # Development: disable SSL verification for networks with SSL inspection
+        ssl_ctx = ssl.create_default_context()
+        ssl_ctx.check_hostname = False
+        ssl_ctx.verify_mode = ssl.CERT_NONE
+        request = HTTPXRequest(http_version="1.1", httpx_kwargs={"verify": False})
 
     app = Application.builder().token(TELEGRAM_TOKEN).request(request).build()
 
